@@ -6,6 +6,6 @@ Fluxo: o paciente lê o QR code → abre a página → ouve a mensagem com legen
 
 ## Arquivos
 - `index.html` — a página (legenda e tempos de cada frase ficam no próprio arquivo, na constante `LINES`)
-- `audio.mp3` — a narração
+- `audio.mp3` — a narração (voz Giselli, ElevenLabs)
 
 Para trocar a narração por uma gravação nova, substitua `audio.mp3` e ajuste os tempos (`s` = início, `e` = fim, em segundos) de cada frase em `LINES`.
