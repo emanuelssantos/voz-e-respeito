@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Seu descanso importa</title>
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: acolhedora e clara, a mesma do display "Voz e Respeito".
+   IDEA: a tela de letras do Spotify vestida com a identidade do display de mesa.
+   PICTURE: cartão de legenda marinho com as frases acendendo em branco.
+   COLOUR and TYPE: branco, marinho #0b2f6e, azul #1e7fd0, azul-claro #cfe4f8; Poppins.
+   LAYOUT: ondas no topo, selo, cartão de legenda, controles, convite ao formulário, ondas no rodapé. */
+:root{color-scheme:light;--navy:#0b2f6e;--blue:#1e7fd0;--mid:#7cb8ee;--pale:#cfe4f8;--bg:#ffffff;--ink:#0b2f6e;--soft:#3f5f8f;--future:rgba(207,228,248,.42);--past:rgba(207,228,248,.8)}
+:root[data-theme=light],:root[data-theme=dark]{color-scheme:light}
+*{box-sizing:border-box;min-width:0}
+html,body{min-height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 Poppins,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:clip;-webkit-tap-highlight-color:transparent;position:relative}
+.wave{position:absolute;left:0;width:100%;pointer-events:none;z-index:0}
+.wave.top{top:0;height:120px}
+.wave.bot{position:relative;display:block;height:110px;margin-top:-40px}
+.wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding:max(22px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
+
+/* tela do player */
+.screen{min-height:100svh;display:flex;flex-direction:column;gap:14px;padding-bottom:18px}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:28px}
+.badge{display:inline-block;background:var(--navy);color:#fff;border-radius:18px 18px 18px 6px;padding:8px 18px 10px;font-weight:700;font-size:clamp(22px,6vw,28px);line-height:1.05;box-shadow:0 6px 16px rgba(11,47,110,.25)}
+.shh{flex:none;color:var(--navy)}
+.ttl{margin:0;font-size:clamp(19px,5vw,24px);line-height:1.2;font-weight:700;color:var(--navy)}
+.sub{margin:2px 0 0;color:var(--soft);font-size:14px}
+
+.card{position:relative;flex:1;min-height:360px;border-radius:18px;background:linear-gradient(170deg,#123d86,var(--navy) 60%);overflow:hidden;box-shadow:0 16px 36px rgba(11,47,110,.28)}
+.card h2{position:absolute;top:0;left:0;right:0;z-index:2;margin:0;padding:16px 20px 22px;font-size:14px;font-weight:600;color:var(--mid);background:linear-gradient(#123d86 55%,rgba(18,61,134,0))}
+.lyrics{position:absolute;inset:0;overflow-y:auto;padding:54px 20px 45%;scroll-behavior:smooth;scrollbar-width:none;overscroll-behavior:contain}
+.lyrics::-webkit-scrollbar{display:none}
+.card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:64px;background:linear-gradient(rgba(11,47,110,0),var(--navy));pointer-events:none}
+.ln{display:block;width:100%;text-align:left;background:none;border:0;padding:6px 0;margin:0 0 6px;font:700 clamp(21px,5.6vw,30px)/1.26 Poppins,system-ui,sans-serif;color:var(--future);cursor:pointer;transition:color .35s ease}
+.ln.sec{margin-top:26px}
+.ln.past{color:var(--past)}
+.ln.on{color:#fff}
+.ln:hover{color:rgba(255,255,255,.9)}
+.ln:focus-visible{outline:3px solid var(--mid);outline-offset:4px;border-radius:6px}
+.sync{position:absolute;z-index:3;left:50%;bottom:16px;transform:translateX(-50%);border:0;border-radius:999px;padding:10px 16px;min-height:44px;background:#fff;color:var(--navy);font:600 14px Poppins,sans-serif;box-shadow:0 6px 18px rgba(0,0,0,.25);cursor:pointer;display:none}
+.sync.show{display:block}
+
+/* controles */
+.ctl{display:grid;gap:6px}
+.bar{position:relative;height:28px;display:flex;align-items:center;cursor:pointer;touch-action:none}
+.bar .rail{position:absolute;left:0;right:0;height:5px;border-radius:5px;background:var(--pale)}
+.bar .fill{position:absolute;left:0;height:5px;border-radius:5px;background:var(--blue);width:0}
+.bar .knob{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--navy);margin-left:-8px;left:0;box-shadow:0 2px 6px rgba(11,47,110,.35)}
+.bar:focus-visible{outline:2px solid var(--blue);outline-offset:2px;border-radius:6px}
+.times{display:flex;justify-content:space-between;font-size:13px;color:var(--soft);font-variant-numeric:tabular-nums;margin-top:-4px}
+.btns{display:grid;grid-template-columns:1fr auto auto auto 1fr;align-items:center;gap:18px;margin-top:2px}
+.ib{width:48px;height:48px;border-radius:50%;border:0;background:none;color:var(--navy);display:grid;place-items:center;cursor:pointer}
+.ib:focus-visible,.play:focus-visible,.rate:focus-visible,.cta:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+.play{width:68px;height:68px;border-radius:50%;border:0;background:var(--navy);color:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 8px 20px rgba(11,47,110,.35);transition:transform .15s}
+.play:active{transform:scale(.95)}
+.play.wait{animation:breath 1.8s ease-in-out infinite}
+@keyframes breath{50%{box-shadow:0 0 0 12px rgba(30,127,208,.18),0 8px 20px rgba(11,47,110,.35)}}
+.rate{justify-self:end;min-width:52px;height:36px;border-radius:999px;border:1.5px solid var(--navy);background:#fff;color:var(--navy);font:600 14px Poppins,sans-serif;cursor:pointer}
+.hint{text-align:center;color:var(--soft);font-size:14px;margin:4px 0 0}
+.skip{color:var(--blue);font-weight:600}
+
+/* formulário */
+.form{padding:28px 0 0}
+.panel{border-radius:18px;background:var(--pale);color:var(--navy);padding:clamp(22px,5vw,34px);text-align:center;transition:box-shadow .4s}
+.panel h2{font-size:clamp(23px,6vw,30px);line-height:1.15;margin:0 0 10px;font-weight:700;text-wrap:balance}
+.panel p{margin:0 auto 20px;max-width:46ch;font-size:16px;color:#24457d}
+.panel b{font-weight:700}
+.cta{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:56px;padding:14px 28px;border-radius:999px;background:var(--navy);color:#fff;text-decoration:none;font:600 17px Poppins,sans-serif;box-shadow:0 8px 20px rgba(11,47,110,.3)}
+.cta:hover{background:var(--blue)}
+.panel.lit{box-shadow:0 0 0 6px rgba(30,127,208,.45)}
+.panel.lit .cta{animation:nudge 1.6s ease-in-out 3}
+@keyframes nudge{50%{transform:scale(1.05)}}
+.sign{display:flex;align-items:center;justify-content:center;gap:12px;color:var(--navy);font-size:15px;line-height:1.35;margin:24px 0 0;padding-top:18px;border-top:2px solid var(--navy);text-align:left}
+.sign svg{flex:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media(min-width:760px){.lyrics{padding-left:28px;padding-right:28px}.card h2{padding-left:28px}}
+</style>
+</head>
+<body>
+<svg class="wave top" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 0H400V22C330 58 270 18 205 40C140 62 70 92 0 70Z" fill="#cfe4f8"/>
+  <path d="M0 0H400V8C320 34 260 4 190 22C120 40 60 62 0 46Z" fill="#7cb8ee"/>
+  <path d="M0 0H260C220 14 170 10 120 22C80 32 40 36 0 28Z" fill="#1e7fd0"/>
+</svg>
+<main class="wrap">
+  <section class="screen" aria-label="Mensagem em áudio">
+    <div class="top">
+      <span class="badge">Voz e<br>Respeito</span>
+      <svg class="shh" width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M30 6c-4 6-6 10-3 14l-3 4 4 2-1 4 3 2-2 4c3 2 6 2 9 1"/>
+        <path d="M40 30v26M40 30a3.5 3.5 0 0 1 7 0v12a3 3 0 0 1 6 0v5c0 7-4 11-10 11h-3"/>
+        <path d="M8 18l6 3M6 28h7M8 38l6-3" stroke="#1e7fd0"/>
+      </svg>
+    </div>
+    <div>
+      <h1 class="ttl">Seu descanso também importa!</h1>
+      <p class="sub">Ouça a mensagem e acompanhe a legenda · <span id="dur">2:26</span></p>
+    </div>
+
+    <div class="card">
+      <h2>Legenda</h2>
+      <div class="lyrics" id="lyrics" aria-live="off"></div>
+      <button class="sync" id="sync" type="button">Voltar para a linha atual</button>
+    </div>
+
+    <div class="ctl">
+      <div class="bar" id="bar" role="slider" tabindex="0" aria-label="Posição do áudio" aria-valuemin="0" aria-valuemax="146" aria-valuenow="0">
+        <div class="rail"></div><div class="fill" id="fill"></div><div class="knob" id="knob"></div>
+      </div>
+      <div class="times"><span id="cur">0:00</span><span id="tot">2:26</span></div>
+      <div class="btns">
+        <span></span>
+        <button class="ib" id="back" type="button" aria-label="Voltar 10 segundos">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><text x="12" y="15.5" fill="currentColor" stroke="none" font-size="7.5" font-weight="800" text-anchor="middle" font-family="Poppins,sans-serif">10</text></svg>
+        </button>
+        <button class="play wait" id="play" type="button" aria-label="Ouvir a mensagem">
+          <svg id="icoPlay" width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.4-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg>
+          <svg id="icoPause" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" style="display:none"><rect x="6" y="4.5" width="4" height="15" rx="1.2"/><rect x="14" y="4.5" width="4" height="15" rx="1.2"/></svg>
+        </button>
+        <button class="ib" id="fwd" type="button" aria-label="Avançar 10 segundos">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/><text x="12" y="15.5" fill="currentColor" stroke="none" font-size="7.5" font-weight="800" text-anchor="middle" font-family="Poppins,sans-serif">10</text></svg>
+        </button>
+        <button class="rate" id="rate" type="button" aria-label="Velocidade da fala">1x</button>
+      </div>
+      <p class="hint" id="hint">Toque no play para ouvir. Toque em uma frase para ir até ela.<br><a class="skip" href="#formulario">Ir direto para o formulário</a></p>
+    </div>
+  </section>
+
+  <section class="form" id="formulario" aria-label="Formulário">
+    <div class="panel" id="panel">
+      <h2>Agora queremos ouvir você</h2>
+      <p>Sua opinião ajuda a tornar o ambiente mais tranquilo para todos. Responder leva só alguns minutos.</p>
+      <a class="cta" id="cta" href="https://docs.google.com/forms/d/e/1FAIpQLSeppIcaxMnLsS15-MDYrel0diidUsDNXBABXbEi6_TxUi1xig/viewform?usp=publish-editor" target="_blank" rel="noopener">
+        Responder ao formulário
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </a>
+    </div>
+    <p class="sign">
+      <svg width="40" height="40" viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16v8h5l14 7V9L10 16z"/><path d="M10 24l2 9h4l-1-7"/><path d="M29 14l4-3M30 20h5M29 26l4 3" stroke="#1e7fd0"/></svg>
+      <span>Se algo causar desconforto, avise nossa equipe.<br><b>Voz e Respeito:</b> porque cuidar também é respeitar!</span>
+    </p>
+  </section>
+</main>
+<svg class="wave bot" viewBox="0 0 400 110" preserveAspectRatio="none" aria-hidden="true">
+  <path d="M0 60C70 30 140 40 210 62C280 84 340 70 400 40V110H0Z" fill="#cfe4f8"/>
+  <path d="M0 78C80 52 150 66 220 82C290 98 350 86 400 64V110H0Z" fill="#7cb8ee"/>
+  <path d="M0 96C90 78 170 90 240 98C310 106 360 100 400 88V110H0Z" fill="#0b2f6e"/>
+</svg>
+
+<audio id="audio" preload="auto"></audio>
+
+<script>
+{
+const LINES = [{"t":"Seu descanso também importa!","k":"t","s":0.4,"e":1.82},{"t":"O ambiente hospitalar deve ser seguro, acolhedor e adequado às suas necessidades.","k":"l","s":2.72,"e":7.78},{"t":"O descanso é uma parte importante do processo de recuperação.","k":"l","s":8.38,"e":12.16},{"t":"Por isso, conversas paralelas, risadas, conversas em tom elevado e ruídos que poderiam ser evitados devem ser reduzidos,","k":"l","s":12.61,"e":20.3},{"t":"principalmente nos períodos destinados ao repouso.","k":"l","s":20.55,"e":23.41},{"t":"Sabemos que alguns sons fazem parte da rotina hospitalar,","k":"l","s":24.01,"e":27.43},{"t":"como alarmes e equipamentos necessários ao acompanhamento e à segurança dos pacientes.","k":"l","s":27.63,"e":32.51},{"t":"Porém, todos podemos colaborar para tornar esse ambiente mais tranquilo.","k":"l","s":32.96,"e":37.39},{"t":"Você sabia que existem leis e políticas públicas que garantem seus direitos durante uma internação hospitalar?","k":"l","s":38.29,"e":44.78},{"t":"Vamos conhecer alguns deles?","k":"l","s":45.23,"e":46.82},{"t":"1. Qualidade e adequação do ambiente","k":"h","s":47.92,"e":50.56},{"t":"O artigo 8º do Estatuto dos Direitos do Paciente também estabelece","k":"l","s":51.26,"e":55.41},{"t":"o direito a cuidados de qualidade e a instalações físicas adequadas.","k":"l","s":55.56,"e":59.93},{"t":"Isso envolve um ambiente limpo, organizado e apropriado para a assistência,","k":"l","s":60.48,"e":64.94},{"t":"que ofereça condições dignas para sua permanência e recuperação.","k":"l","s":65.14,"e":69.08},{"t":"2. Promoção de um ambiente seguro","k":"h","s":70.18,"e":72.68},{"t":"A RDC nº 36, de 2013, da Agência Nacional de Vigilância Sanitária,","k":"l","s":73.38,"e":79.8},{"t":"estabelece ações para a segurança do paciente nos serviços de saúde.","k":"l","s":80.0,"e":84.25},{"t":"Em seu artigo 8º, inciso XVII,","k":"l","s":84.8,"e":87.23},{"t":"a resolução prevê a promoção de um ambiente seguro como parte das estratégias de segurança do paciente.","k":"l","s":87.43,"e":93.7},{"t":"Por isso, atitudes como evitar conversas paralelas, risadas e ruídos desnecessários","k":"l","s":94.3,"e":99.78},{"t":"são importantes para contribuir com um ambiente mais tranquilo e adequado ao descanso.","k":"l","s":99.93,"e":104.88},{"t":"É importante lembrar que os alarmes e sons dos equipamentos necessários à assistência devem ser mantidos,","k":"l","s":105.48,"e":111.44},{"t":"pois fazem parte da segurança do cuidado.","k":"l","s":111.64,"e":114.08},{"t":"E lembre-se:","k":"h","s":115.18,"e":115.8},{"t":"Você tem direito de ser ouvido, de esclarecer suas dúvidas","k":"l","s":116.3,"e":120.15},{"t":"e de comunicar qualquer situação que cause desconforto durante sua internação.","k":"l","s":120.3,"e":124.96},{"t":"Você não precisa se sentir constrangido(a) em comunicar à equipe","k":"l","s":125.51,"e":130.24},{"t":"caso algum ruído esteja prejudicando seu descanso ou se alguma situação estiver causando desconforto.","k":"l","s":130.39,"e":136.51},{"t":"Sua segurança, seu bem-estar e sua recuperação importam!","k":"l","s":137.11,"e":140.35},{"t":"Voz e Respeito: porque cuidar também é respeitar!","k":"e","s":141.25,"e":144.44}];
+const $ = id => document.getElementById(id);
+const audio = $('audio'), box = $('lyrics'), bar = $('bar'), fill = $('fill'), knob = $('knob');
+const playBtn = $('play'), icoPlay = $('icoPlay'), icoPause = $('icoPause'), syncBtn = $('sync');
+const esc = s => s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt = t => { t = Math.max(0, Math.floor(t || 0)); return Math.floor(t/60) + ':' + String(t%60).padStart(2,'0'); };
+let total = LINES[LINES.length-1].e + 1.2;
+
+box.innerHTML = LINES.map((l, i) =>
+  `<button type="button" class="ln${(l.k==='h'||l.k==='e')&&i?' sec':''}" data-i="${i}">${esc(l.t)}</button>`).join('');
+const els = [...box.children];
+
+// destaque da linha atual
+let cur = -2, userScrollUntil = 0;
+function indexAt(t){
+  let i = -1;
+  for (let k = 0; k < LINES.length; k++){ if (LINES[k].s - 0.12 <= t) i = k; else break; }
+  return i;
+}
+function centerLine(i, smooth){
+  const el = els[i]; if (!el) return;
+  const y = el.offsetTop - box.clientHeight * 0.32 + el.offsetHeight / 2;
+  box.scrollTo({ top: Math.max(0, y), behavior: smooth ? 'smooth' : 'auto' });
+}
+function setActive(i){
+  if (i === cur) return;
+  cur = i;
+  els.forEach((el, k) => {
+    el.classList.toggle('on', k === i);
+    el.classList.toggle('past', k < i);
+  });
+  if (i >= 0 && Date.now() > userScrollUntil) centerLine(i, true);
+}
+
+// progresso
+function paint(){
+  const t = audio.currentTime || 0, p = Math.min(1, t / total);
+  fill.style.width = (p*100) + '%'; knob.style.left = (p*100) + '%';
+  $('cur').textContent = fmt(t);
+  bar.setAttribute('aria-valuenow', Math.round(t));
+  bar.setAttribute('aria-valuetext', fmt(t) + ' de ' + fmt(total));
+  setActive(indexAt(t));
+}
+let raf = 0;
+function loop(){ paint(); if (!audio.paused) raf = requestAnimationFrame(loop); }
+
+function setIcons(){
+  const on = !audio.paused;
+  icoPlay.style.display = on ? 'none' : ''; icoPause.style.display = on ? '' : 'none';
+  playBtn.setAttribute('aria-label', on ? 'Pausar' : 'Ouvir a mensagem');
+}
+async function play(){
+  if (!audio.getAttribute('src')) audio.src = 'audio.mp3';
+  started = true;
+  try { await audio.play(); playBtn.classList.remove('wait'); }
+  catch (e) { $('hint').firstChild.textContent = 'Não foi possível tocar o áudio. Toque no play novamente. '; }
+}
+playBtn.addEventListener('click', () => audio.paused ? play() : audio.pause());
+audio.addEventListener('play', () => { setIcons(); cancelAnimationFrame(raf); loop(); });
+audio.addEventListener('pause', () => { setIcons(); paint(); });
+audio.addEventListener('timeupdate', () => { if (audio.paused) paint(); });
+audio.addEventListener('loadedmetadata', () => {
+  if (isFinite(audio.duration)) total = audio.duration;
+  $('tot').textContent = $('dur').textContent = fmt(total);
+  bar.setAttribute('aria-valuemax', Math.round(total));
+});
+audio.addEventListener('ended', () => {
+  setIcons(); setActive(LINES.length); els.forEach(el => el.classList.add('past'));
+  const panel = $('panel'); panel.classList.remove('lit'); void panel.offsetWidth; panel.classList.add('lit');
+  setTimeout(() => $('formulario').scrollIntoView({ behavior: 'smooth', block: 'center' }), 700);
+});
+// carrega o áudio inteiro na memória: o avanço funciona em qualquer servidor
+let started = false;
+(async () => {
+  try {
+    const r = await fetch('audio.mp3'); if (!r.ok) throw 0;
+    const url = URL.createObjectURL(await r.blob());
+    if (!started) { audio.src = url; audio.load(); }
+  } catch (e) { if (!audio.src) audio.src = 'audio.mp3'; }
+})();
+
+function seek(t){ audio.currentTime = Math.max(0, Math.min(total - 0.05, t)); userScrollUntil = 0; cur = -2; paint(); }
+$('back').addEventListener('click', () => seek(audio.currentTime - 10));
+$('fwd').addEventListener('click', () => seek(audio.currentTime + 10));
+const rates = [1, 1.25, 0.8]; let ri = 0;
+$('rate').addEventListener('click', e => { ri = (ri + 1) % rates.length; audio.playbackRate = rates[ri]; e.currentTarget.textContent = String(rates[ri]).replace('.', ',') + 'x'; });
+
+// tocar numa frase leva até ela
+box.addEventListener('click', e => {
+  const b = e.target.closest('.ln'); if (!b) return;
+  seek(LINES[+b.dataset.i].s); if (audio.paused) play();
+});
+
+// rolagem manual pausa a rolagem automática (como no Spotify)
+function userScrolled(){ userScrollUntil = Date.now() + 4000; if (!audio.paused) syncBtn.classList.add('show'); }
+['wheel','touchmove'].forEach(ev => box.addEventListener(ev, userScrolled, { passive: true }));
+setInterval(() => { if (Date.now() > userScrollUntil && syncBtn.classList.contains('show')) { syncBtn.classList.remove('show'); centerLine(cur, true); } }, 500);
+syncBtn.addEventListener('click', () => { userScrollUntil = 0; syncBtn.classList.remove('show'); centerLine(cur, true); });
+
+// barra de progresso: tocar e arrastar
+function barSeek(ev){ const r = bar.getBoundingClientRect(); seek(((ev.clientX - r.left) / r.width) * total); }
+bar.addEventListener('pointerdown', ev => { bar.setPointerCapture(ev.pointerId); barSeek(ev); });
+bar.addEventListener('pointermove', ev => { if (bar.hasPointerCapture(ev.pointerId)) barSeek(ev); });
+bar.addEventListener('keydown', ev => {
+  if (ev.key === 'ArrowRight') { seek(audio.currentTime + 5); ev.preventDefault(); }
+  if (ev.key === 'ArrowLeft') { seek(audio.currentTime - 5); ev.preventDefault(); }
+});
+document.addEventListener('keydown', ev => {
+  if (ev.code === 'Space' && !/^(A|BUTTON|INPUT)$/.test(document.activeElement.tagName)) { ev.preventDefault(); audio.paused ? play() : audio.pause(); }
+});
+
+// tela de bloqueio do celular
+if ('mediaSession' in navigator) {
+  try {
+    navigator.mediaSession.metadata = new MediaMetadata({ title: 'Seu descanso também importa!', artist: 'Voz e Respeito' });
+    navigator.mediaSession.setActionHandler('play', play);
+    navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+    navigator.mediaSession.setActionHandler('seekbackward', () => seek(audio.currentTime - 10));
+    navigator.mediaSession.setActionHandler('seekforward', () => seek(audio.currentTime + 10));
+  } catch (e) {}
+}
+paint();
+}
+</script>
+</body>
+</html>
